@@ -16,8 +16,6 @@ export interface ItemTmdb {
 
 const PAGINA_MAX = 500;
 const VOTOS_MINIMOS_AVALIADOS = 200;
-// Sem isso, um título com um único voto 10 passaria no filtro "de 8".
-const VOTOS_MINIMOS_FAIXA_NOTA = 100;
 
 type Params = Record<string, string | number | undefined>;
 
@@ -30,13 +28,11 @@ export function montarParametrosDescoberta(f: Filtros, hoje: string): Params {
     with_genres: f.genero !== null ? String(f.genero) : undefined,
     "vote_average.gte": f.notaMin ?? undefined,
     "vote_average.lte": f.notaMax ?? undefined,
-    "vote_count.gte": f.notaMin !== null || f.notaMax !== null ? VOTOS_MINIMOS_FAIXA_NOTA : undefined,
     page: f.pagina,
   };
 
   if (f.ordem === "avaliados") {
     params.sort_by = "vote_average.desc";
-    // A regra mais rígida vence: 200 votos mesmo com a faixa de notas ligada.
     params["vote_count.gte"] = VOTOS_MINIMOS_AVALIADOS;
   } else if (f.ordem === "lancamentos") {
     params.sort_by = `${campoData}.desc`;

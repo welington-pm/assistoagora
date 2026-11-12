@@ -32,21 +32,21 @@ describe("montarParametrosDescoberta", () => {
     expect(p["vote_count.gte"]).toBeUndefined();
   });
 
-  it("faixa de notas vira vote_average e exige 100 votos", () => {
+  it("faixa de notas vira vote_average, sem mínimo de votos", () => {
     const p = montarParametrosDescoberta({ ...BASE, notaMin: 6, notaMax: 8 }, HOJE);
     expect(p["vote_average.gte"]).toBe(6);
     expect(p["vote_average.lte"]).toBe(8);
-    expect(p["vote_count.gte"]).toBe(100);
+    expect(p["vote_count.gte"]).toBeUndefined();
   });
 
-  it("só a nota máxima também exige 100 votos", () => {
+  it("aceita só a nota máxima", () => {
     const p = montarParametrosDescoberta({ ...BASE, notaMax: 5 }, HOJE);
     expect(p["vote_average.gte"]).toBeUndefined();
     expect(p["vote_average.lte"]).toBe(5);
-    expect(p["vote_count.gte"]).toBe(100);
+    expect(p["vote_count.gte"]).toBeUndefined();
   });
 
-  it("avaliados com faixa de notas mantém a regra mais rígida (200 votos)", () => {
+  it("avaliados com faixa de notas continua exigindo 200 votos", () => {
     const p = montarParametrosDescoberta({ ...BASE, ordem: "avaliados", notaMin: 7 }, HOJE);
     expect(p["vote_average.gte"]).toBe(7);
     expect(p["vote_count.gte"]).toBe(200);
