@@ -1,7 +1,7 @@
 // Converte os parâmetros da URL em Filtros (e de volta).
 // Usado no servidor e no navegador: não importe nada de servidor aqui.
 import { lerIdsStreamings } from "./cookies";
-import type { Filtros, Ordem, Tipo } from "./tipos";
+import type { Filtros, Genero, Ordem, Streaming, Tipo } from "./tipos";
 
 type Params = Record<string, string | string[] | undefined>;
 
@@ -57,4 +57,18 @@ export function serializarFiltros(f: Filtros): string {
 export function hrefDaLista(f: Filtros): string {
   const query = serializarFiltros(f);
   return query ? `/?${query}` : "/";
+}
+
+/**
+ * Remove o que não existe no catálogo atual: um gênero de outro tipo (link antigo)
+ * ou um streaming que saiu da lista do Brasil. Sem isso, a pessoa ficaria presa
+ * numa grade vazia com um filtro invisível.
+ */
+export function sanearFiltros(f: Filtros, streamings: Streaming[], generos: Genero[]): Filtros {
+  const idsStreamings = new Set(streamings.map((s) => s.id));
+  return {
+    ...f,
+    streamings: f.streamings.filter((id) => idsStreamings.has(id)),
+    genero: f.genero !== null && generos.some((g) => g.id === f.genero) ? f.genero : null,
+  };
 }

@@ -2,9 +2,10 @@ import { Suspense } from "react";
 import { cookies } from "next/headers";
 import Filtros from "@/components/Filtros";
 import GradeTitulos from "@/components/GradeTitulos";
+import MarcaNavegacao from "@/components/MarcaNavegacao";
 import Paginacao from "@/components/Paginacao";
 import { COOKIE_STREAMINGS } from "@/lib/cookies";
-import { parseFiltros } from "@/lib/filtros";
+import { parseFiltros, sanearFiltros } from "@/lib/filtros";
 import { listarGeneros, listarStreamings } from "@/lib/tmdb/catalogos";
 import { descobrir } from "@/lib/tmdb/descoberta";
 
@@ -13,6 +14,7 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 export default function Home({ searchParams }: { searchParams: SearchParams }) {
   return (
     <>
+      <MarcaNavegacao />
       <section className="px-4 pb-2 pt-8 sm:px-8">
         <h1 className="text-2xl font-bold tracking-tight sm:text-[32px]">O que assistir agora?</h1>
         <p className="mt-1.5 text-muted">Marque seus streamings e veja o que está disponível neles hoje.</p>
@@ -27,12 +29,11 @@ export default function Home({ searchParams }: { searchParams: SearchParams }) {
 
 async function Conteudo({ searchParams }: { searchParams: SearchParams }) {
   const cookie = (await cookies()).get(COOKIE_STREAMINGS)?.value;
-  const filtros = parseFiltros(await searchParams, cookie);
-  const [pagina, streamings, generos] = await Promise.all([
-    descobrir(filtros),
-    listarStreamings(),
-    listarGeneros(filtros.tipo),
-  ]);
+  const lidos = parseFiltros(await searchParams, cookie);
+  // Catálogos primeiro (ficam em cache por 1 dia), para descartar filtros que não existem mais.
+  const [streamings, generos] = await Promise.all([listarStreamings(), listarGeneros(lidos.tipo)]);
+  const filtros = sanearFiltros(lidos, streamings, generos);
+  const pagina = await descobrir(filtros);
 
   const nomesSelecionados = streamings.filter((s) => filtros.streamings.includes(s.id)).map((s) => s.nome);
   const tipoTexto = filtros.tipo === "filme" ? "Filmes" : "Séries";

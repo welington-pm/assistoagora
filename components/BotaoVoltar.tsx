@@ -1,14 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { veioDeDentroDoApp } from "@/lib/navegacao";
 
 // Volta para a lista com os filtros como estavam (histórico do navegador).
-// Se a página foi aberta direto por um link, não há para onde voltar: vai para o início.
+// Se a página foi aberta direto por um link (de outro site ou colado na barra),
+// o histórico anterior não é do app: vai para o início.
 export default function BotaoVoltar() {
   const router = useRouter();
 
   function voltar() {
-    if (window.history.length > 1) router.back();
+    if (veioDeDentroDoApp()) router.back();
     else router.push("/");
   }
 

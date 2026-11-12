@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseFiltros, serializarFiltros } from "@/lib/filtros";
+import { parseFiltros, sanearFiltros, serializarFiltros } from "@/lib/filtros";
 import type { Filtros } from "@/lib/tipos";
 
 const PADROES: Filtros = { tipo: "filme", streamings: [], genero: null, ordem: "populares", pagina: 1 };
@@ -50,5 +50,25 @@ describe("serializarFiltros", () => {
     const params = new URLSearchParams(serializarFiltros(f));
     expect(params.get("streamings")).toBe("8,119");
     expect(parseFiltros(Object.fromEntries(params))).toEqual(f);
+  });
+});
+
+describe("sanearFiltros", () => {
+  const STREAMINGS = [
+    { id: 8, nome: "Netflix", logo: null, prioridade: 0 },
+    { id: 119, nome: "Prime Video", logo: null, prioridade: 2 },
+  ];
+  const GENEROS = [{ id: 35, nome: "Comédia" }];
+
+  it("descarta um gênero que não existe para o tipo", () => {
+    expect(sanearFiltros({ ...PADROES, tipo: "serie", genero: 28 }, STREAMINGS, GENEROS).genero).toBeNull();
+  });
+
+  it("mantém um gênero válido", () => {
+    expect(sanearFiltros({ ...PADROES, genero: 35 }, STREAMINGS, GENEROS).genero).toBe(35);
+  });
+
+  it("descarta streamings que não estão no catálogo, mantendo a ordem", () => {
+    expect(sanearFiltros({ ...PADROES, streamings: [119, 99999, 8] }, STREAMINGS, GENEROS).streamings).toEqual([119, 8]);
   });
 });
