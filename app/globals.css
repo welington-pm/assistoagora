@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+/* Identidade visual "cinema escuro" (spec, seção 12). Sempre escuro: sem modo claro na v1. */
+@theme {
+  --color-bg: #0b0d12;
+  --color-surface: #151922;
+  --color-surface-2: #1d2230;
+  --color-line: #2a3040;
+  --color-text: #f1f3f8;
+  --color-muted: #9aa3b5;
+  --color-accent: #f5b84a;
+  --color-accent-ink: #1a1204;
+
+  --font-sans: system-ui, "Segoe UI", -apple-system, sans-serif;
+
+  /* Grade: 2 colunas até 640px, 4 de 641px a 1100px, 6 acima disso. */
+  --breakpoint-sm: 641px;
+  --breakpoint-xl: 1100px;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
