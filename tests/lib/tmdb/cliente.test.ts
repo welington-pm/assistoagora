@@ -36,7 +36,7 @@ describe("tmdbFetch", () => {
 
   it("lança TmdbError com status quando a resposta não é ok", async () => {
     fetchMock.mockResolvedValue({ ok: false, status: 429, json: async () => ({}) });
-    const erro = await tmdbFetch("/discover/movie", {}).catch((e) => e);
+    const erro = (await tmdbFetch("/discover/movie", {}).catch((e) => e)) as TmdbError;
     expect(erro).toBeInstanceOf(TmdbError);
     expect(erro.status).toBe(429);
   });

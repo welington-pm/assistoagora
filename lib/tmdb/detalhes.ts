@@ -12,7 +12,10 @@ export interface VideoTmdb {
   iso_639_1: string;
 }
 
-type ProvidersPorPais = { results?: Record<string, { flatrate?: ProviderTmdb[] }> };
+// O TMDB separa por país e por modalidade; só "flatrate" (assinatura) interessa aqui.
+type ProvidersPorPais = {
+  results?: Record<string, { flatrate?: ProviderTmdb[]; rent?: ProviderTmdb[]; buy?: ProviderTmdb[] }>;
+};
 
 interface DetalhesTmdb {
   id: number;

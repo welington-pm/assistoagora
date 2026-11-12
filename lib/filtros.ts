@@ -52,3 +52,9 @@ export function serializarFiltros(f: Filtros): string {
   if (f.pagina !== FILTROS_PADRAO.pagina) partes.push(`pagina=${f.pagina}`);
   return partes.join("&");
 }
+
+/** Endereço da página inicial com estes filtros ("/" quando todos são padrão). */
+export function hrefDaLista(f: Filtros): string {
+  const query = serializarFiltros(f);
+  return query ? `/?${query}` : "/";
+}
