@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { cookies } from "next/headers";
+import Filtros from "@/components/Filtros";
 import GradeTitulos from "@/components/GradeTitulos";
 import Paginacao from "@/components/Paginacao";
 import { COOKIE_STREAMINGS } from "@/lib/cookies";
@@ -39,7 +40,7 @@ async function Conteudo({ searchParams }: { searchParams: SearchParams }) {
 
   return (
     <>
-      {/* Filtros */}
+      <Filtros filtros={filtros} streamings={streamings} generos={generos} />
       <p className="px-4 pt-1 text-sm text-muted sm:px-8">
         {tipoTexto} em {ondeTexto} · página {filtros.pagina}
       </p>
