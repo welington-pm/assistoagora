@@ -5,7 +5,15 @@ vi.mock("next/cache", () => ({ cacheLife: vi.fn() }));
 import { descobrir, mapearTitulo, montarParametrosDescoberta } from "@/lib/tmdb/descoberta";
 import type { Filtros } from "@/lib/tipos";
 
-const BASE: Filtros = { tipo: "filme", streamings: [], genero: null, ordem: "populares", pagina: 1 };
+const BASE: Filtros = {
+  tipo: "filme",
+  streamings: [],
+  genero: null,
+  ordem: "populares",
+  pagina: 1,
+  notaMin: null,
+  notaMax: null,
+};
 const HOJE = "2026-11-12";
 
 describe("montarParametrosDescoberta", () => {
@@ -19,6 +27,29 @@ describe("montarParametrosDescoberta", () => {
     });
     expect(p.with_watch_providers).toBeUndefined();
     expect(p.with_genres).toBeUndefined();
+    expect(p["vote_average.gte"]).toBeUndefined();
+    expect(p["vote_average.lte"]).toBeUndefined();
+    expect(p["vote_count.gte"]).toBeUndefined();
+  });
+
+  it("faixa de notas vira vote_average e exige 100 votos", () => {
+    const p = montarParametrosDescoberta({ ...BASE, notaMin: 6, notaMax: 8 }, HOJE);
+    expect(p["vote_average.gte"]).toBe(6);
+    expect(p["vote_average.lte"]).toBe(8);
+    expect(p["vote_count.gte"]).toBe(100);
+  });
+
+  it("só a nota máxima também exige 100 votos", () => {
+    const p = montarParametrosDescoberta({ ...BASE, notaMax: 5 }, HOJE);
+    expect(p["vote_average.gte"]).toBeUndefined();
+    expect(p["vote_average.lte"]).toBe(5);
+    expect(p["vote_count.gte"]).toBe(100);
+  });
+
+  it("avaliados com faixa de notas mantém a regra mais rígida (200 votos)", () => {
+    const p = montarParametrosDescoberta({ ...BASE, ordem: "avaliados", notaMin: 7 }, HOJE);
+    expect(p["vote_average.gte"]).toBe(7);
+    expect(p["vote_count.gte"]).toBe(200);
   });
 
   it("junta streamings com | (OU) e inclui o gênero", () => {

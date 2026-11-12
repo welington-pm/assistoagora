@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import SeletorStreamings from "./SeletorStreamings";
 import { cookieStreamings } from "@/lib/cookies";
-import { hrefDaLista } from "@/lib/filtros";
+import { hrefDaLista, NOTAS_MAXIMAS, NOTAS_MINIMAS } from "@/lib/filtros";
 import type { Filtros as TipoFiltros, Genero, Ordem, Streaming, Tipo } from "@/lib/tipos";
 
 interface Props {
@@ -24,6 +24,11 @@ const ORDENS: { valor: Ordem; rotulo: string }[] = [
 ];
 
 const ROTULO = "mb-2 text-[11px] uppercase tracking-[1.2px] text-muted";
+const SELECT = "rounded-[10px] border border-line bg-surface px-3.5 py-[9px] text-sm text-text";
+
+function valorDoSelect(valor: string): number | null {
+  return valor ? Number(valor) : null;
+}
 
 function Segmentos<T extends string>({
   opcoes,
@@ -61,6 +66,17 @@ export default function Filtros({ filtros, streamings, generos }: Props) {
     router.push(hrefDaLista({ ...filtros, ...mudancas, pagina: 1 }), { scroll: false });
   }
 
+  // Uma faixa impossível ("de 8 até 5") esvaziaria a grade: o outro lado volta para "Qualquer".
+  function mudarNotaMin(notaMin: number | null) {
+    const conflita = notaMin !== null && filtros.notaMax !== null && notaMin >= filtros.notaMax;
+    aplicar({ notaMin, notaMax: conflita ? null : filtros.notaMax });
+  }
+
+  function mudarNotaMax(notaMax: number | null) {
+    const conflita = notaMax !== null && filtros.notaMin !== null && notaMax <= filtros.notaMin;
+    aplicar({ notaMax, notaMin: conflita ? null : filtros.notaMin });
+  }
+
   function mudarStreamings(ids: number[]) {
     document.cookie = cookieStreamings(ids);
     aplicar({ streamings: ids });
@@ -85,8 +101,8 @@ export default function Filtros({ filtros, streamings, generos }: Props) {
           <select
             id="filtro-genero"
             value={filtros.genero ?? ""}
-            onChange={(e) => aplicar({ genero: e.target.value ? Number(e.target.value) : null })}
-            className="min-w-[170px] rounded-[10px] border border-line bg-surface px-3.5 py-[9px] text-sm text-text"
+            onChange={(e) => aplicar({ genero: valorDoSelect(e.target.value) })}
+            className={`min-w-[170px] ${SELECT}`}
           >
             <option value="">Todos</option>
             {generos.map((g) => (
@@ -95,6 +111,40 @@ export default function Filtros({ filtros, streamings, generos }: Props) {
               </option>
             ))}
           </select>
+        </div>
+        <div role="group" aria-labelledby="filtro-nota">
+          <div id="filtro-nota" className={ROTULO}>
+            Nota
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted">
+            <select
+              aria-label="Nota mínima"
+              value={filtros.notaMin ?? ""}
+              onChange={(e) => mudarNotaMin(valorDoSelect(e.target.value))}
+              className={SELECT}
+            >
+              <option value="">Qualquer</option>
+              {NOTAS_MINIMAS.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+            até
+            <select
+              aria-label="Nota máxima"
+              value={filtros.notaMax ?? ""}
+              onChange={(e) => mudarNotaMax(valorDoSelect(e.target.value))}
+              className={SELECT}
+            >
+              <option value="">Qualquer</option>
+              {NOTAS_MAXIMAS.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
         <div>
           <div className={ROTULO}>Ordenar por</div>

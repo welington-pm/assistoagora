@@ -9,7 +9,15 @@ import Filtros from "@/components/Filtros";
 import { serializarFiltros } from "@/lib/filtros";
 import type { Filtros as TipoFiltros, Genero, Streaming } from "@/lib/tipos";
 
-const F: TipoFiltros = { tipo: "filme", streamings: [8], genero: 35, ordem: "populares", pagina: 3 };
+const F: TipoFiltros = {
+  tipo: "filme",
+  streamings: [8],
+  genero: 35,
+  ordem: "populares",
+  pagina: 3,
+  notaMin: null,
+  notaMax: null,
+};
 const STREAMINGS: Streaming[] = [
   { id: 8, nome: "Netflix", logo: null, prioridade: 0 },
   { id: 119, nome: "Prime Video", logo: null, prioridade: 2 },
@@ -63,6 +71,47 @@ describe("Filtros", () => {
     expect(urlEnviada().get("pagina")).toBeNull();
     await userEvent.selectOptions(select, "");
     expect(urlEnviada().get("genero")).toBeNull();
+  });
+
+  it("escolher a faixa de notas aplica os dois lados e volta à página 1", async () => {
+    const { rerender } = render(<Filtros filtros={F} streamings={STREAMINGS} generos={GENEROS} />);
+    await userEvent.selectOptions(screen.getByLabelText("Nota mínima"), "6");
+    expect(urlEnviada().get("nota_min")).toBe("6");
+    expect(urlEnviada().get("genero")).toBe("35");
+    expect(urlEnviada().get("pagina")).toBeNull();
+
+    rerender(<Filtros filtros={{ ...F, notaMin: 6 }} streamings={STREAMINGS} generos={GENEROS} />);
+    await userEvent.selectOptions(screen.getByLabelText("Nota máxima"), "8");
+    expect(urlEnviada().get("nota_min")).toBe("6");
+    expect(urlEnviada().get("nota_max")).toBe("8");
+  });
+
+  it("Qualquer remove o lado escolhido da faixa", async () => {
+    render(<Filtros filtros={{ ...F, notaMin: 6, notaMax: 8 }} streamings={STREAMINGS} generos={GENEROS} />);
+    await userEvent.selectOptions(screen.getByLabelText("Nota mínima"), "");
+    expect(urlEnviada().get("nota_min")).toBeNull();
+    expect(urlEnviada().get("nota_max")).toBe("8");
+  });
+
+  it.each(["8", "5"])("nota mínima %s, igual ou acima da máxima 5, limpa a máxima", async (valor) => {
+    render(<Filtros filtros={{ ...F, notaMax: 5 }} streamings={STREAMINGS} generos={GENEROS} />);
+    await userEvent.selectOptions(screen.getByLabelText("Nota mínima"), valor);
+    expect(urlEnviada().get("nota_min")).toBe(valor);
+    expect(urlEnviada().get("nota_max")).toBeNull();
+  });
+
+  it.each(["4", "6"])("nota máxima %s, igual ou abaixo da mínima 6, limpa a mínima", async (valor) => {
+    render(<Filtros filtros={{ ...F, notaMin: 6 }} streamings={STREAMINGS} generos={GENEROS} />);
+    await userEvent.selectOptions(screen.getByLabelText("Nota máxima"), valor);
+    expect(urlEnviada().get("nota_max")).toBe(valor);
+    expect(urlEnviada().get("nota_min")).toBeNull();
+  });
+
+  it("mostra a faixa atual nos dois campos", () => {
+    render(<Filtros filtros={{ ...F, notaMin: 6, notaMax: 8 }} streamings={STREAMINGS} generos={GENEROS} />);
+    expect(screen.getByLabelText("Nota mínima")).toHaveValue("6");
+    expect(screen.getByLabelText("Nota máxima")).toHaveValue("8");
+    expect(screen.getByRole("group", { name: "Nota" })).toBeInTheDocument();
   });
 
   it("marca o tipo e a ordem ativos com aria-pressed", () => {

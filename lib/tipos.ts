@@ -10,6 +10,9 @@ export interface Filtros {
   genero: number | null;
   ordem: Ordem;
   pagina: number;
+  /** Faixa de notas (0 a 10, número inteiro). null = sem limite daquele lado. */
+  notaMin: number | null;
+  notaMax: number | null;
 }
 
 export interface Streaming {

@@ -2,7 +2,7 @@
 
 App web para descobrir **o que assistir agora** nos streamings por assinatura disponíveis no Brasil (Netflix, Prime Video, Disney+, Max…).
 
-Você marca os streamings que assina, escolhe filme ou série, gênero e ordenação, e vê o que está disponível neles hoje. Cada título tem uma página com sinopse, elenco, trailer e onde assistir. O app lembra os seus streamings no navegador, sem precisar de login.
+Você marca os streamings que assina, escolhe filme ou série, gênero, faixa de notas e ordenação, e vê o que está disponível neles hoje. Cada título tem uma página com sinopse, elenco, trailer e onde assistir. O app lembra os seus streamings no navegador, sem precisar de login.
 
 Projeto de estudo feito com Next.js e a API do TMDB.
 

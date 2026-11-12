@@ -10,7 +10,7 @@ export default function GradeTitulos({ titulos, generos }: Props) {
   if (titulos.length === 0) {
     return (
       <p className="px-4 py-16 text-center text-muted sm:px-8">
-        Nada encontrado com esses filtros. Tente remover um gênero ou adicionar streamings.
+        Nada encontrado com esses filtros. Tente ampliar a faixa de notas, remover um gênero ou adicionar streamings.
       </p>
     );
   }

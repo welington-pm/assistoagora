@@ -8,6 +8,9 @@ type Params = Record<string, string | string[] | undefined>;
 const TIPOS: Tipo[] = ["filme", "serie"];
 const ORDENS: Ordem[] = ["populares", "avaliados", "lancamentos"];
 const PAGINA_MAX = 500;
+// "de 10" e "até 1" não deixariam nada de fora (ou deixariam tudo): ficam fora das opções.
+export const NOTAS_MINIMAS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+export const NOTAS_MAXIMAS = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 export const FILTROS_PADRAO: Filtros = {
   tipo: "filme",
@@ -15,6 +18,8 @@ export const FILTROS_PADRAO: Filtros = {
   genero: null,
   ordem: "populares",
   pagina: 1,
+  notaMin: null,
+  notaMax: null,
 };
 
 function primeiro(valor: string | string[] | undefined): string | undefined {
@@ -25,6 +30,21 @@ function inteiroPositivo(valor: string | undefined): number | null {
   if (valor === undefined || valor.trim() === "") return null;
   const n = Number(valor);
   return Number.isInteger(n) && n > 0 ? n : null;
+}
+
+function notaDaLista(valor: string | undefined, permitidas: number[]): number | null {
+  const n = inteiroPositivo(valor);
+  return n !== null && permitidas.includes(n) ? n : null;
+}
+
+/**
+ * Um link com a faixa invertida ("de 8 até 5") vira "de 5 até 8", em vez de uma grade vazia.
+ * Os dois lados iguais quase não têm resultado: fica só a nota mínima.
+ */
+function faixaDeNotas(min: number | null, max: number | null): Pick<Filtros, "notaMin" | "notaMax"> {
+  if (min === null || max === null) return { notaMin: min, notaMax: max };
+  if (min === max) return { notaMin: min, notaMax: null };
+  return { notaMin: Math.min(min, max), notaMax: Math.max(min, max) };
 }
 
 export function parseFiltros(params: Params, cookie?: string): Filtros {
@@ -39,6 +59,10 @@ export function parseFiltros(params: Params, cookie?: string): Filtros {
     genero: inteiroPositivo(primeiro(params.genero)),
     ordem: ORDENS.includes(ordem) ? ordem : FILTROS_PADRAO.ordem,
     pagina: pagina !== null && pagina <= PAGINA_MAX ? pagina : FILTROS_PADRAO.pagina,
+    ...faixaDeNotas(
+      notaDaLista(primeiro(params.nota_min), NOTAS_MINIMAS),
+      notaDaLista(primeiro(params.nota_max), NOTAS_MAXIMAS),
+    ),
   };
 }
 
@@ -49,6 +73,8 @@ export function serializarFiltros(f: Filtros): string {
   if (f.streamings.length > 0) partes.push(`streamings=${f.streamings.join(",")}`);
   if (f.genero !== null) partes.push(`genero=${f.genero}`);
   if (f.ordem !== FILTROS_PADRAO.ordem) partes.push(`ordem=${f.ordem}`);
+  if (f.notaMin !== null) partes.push(`nota_min=${f.notaMin}`);
+  if (f.notaMax !== null) partes.push(`nota_max=${f.notaMax}`);
   if (f.pagina !== FILTROS_PADRAO.pagina) partes.push(`pagina=${f.pagina}`);
   return partes.join("&");
 }

@@ -3,7 +3,15 @@ import { describe, expect, it } from "vitest";
 import Paginacao from "@/components/Paginacao";
 import type { Filtros } from "@/lib/tipos";
 
-const F: Filtros = { tipo: "filme", streamings: [8, 119], genero: null, ordem: "populares", pagina: 1 };
+const F: Filtros = {
+  tipo: "filme",
+  streamings: [8, 119],
+  genero: null,
+  ordem: "populares",
+  pagina: 1,
+  notaMin: null,
+  notaMax: null,
+};
 
 describe("Paginacao", () => {
   it("na primeira página, Anterior fica desabilitado e Próxima avança preservando filtros", () => {

@@ -17,7 +17,7 @@ describe("GradeTitulos", () => {
   it("mostra o estado vazio sem resultados", () => {
     render(<GradeTitulos titulos={[]} generos={[]} />);
     expect(
-      screen.getByText("Nada encontrado com esses filtros. Tente remover um gênero ou adicionar streamings."),
+      screen.getByText("Nada encontrado com esses filtros. Tente ampliar a faixa de notas, remover um gênero ou adicionar streamings."),
     ).toBeInTheDocument();
   });
 
