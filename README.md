@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AssistoAgora
 
-## Getting Started
+App web para descobrir **o que assistir agora** nos streamings por assinatura disponíveis no Brasil (Netflix, Prime Video, Disney+, Max…).
 
-First, run the development server:
+Você marca os streamings que assina, escolhe filme ou série, gênero e ordenação, e vê o que está disponível neles hoje. Cada título tem uma página com sinopse, elenco, trailer e onde assistir. O app lembra os seus streamings no navegador, sem precisar de login.
+
+Projeto de estudo feito com Next.js e a API do TMDB.
+
+## Pré-requisitos
+
+- [Node.js](https://nodejs.org) 20 ou mais novo.
+- Uma conta gratuita no [TMDB](https://www.themoviedb.org) e o seu **API Read Access Token**: em themoviedb.org, vá em Configurações → API e copie o token longo que começa com `eyJ`. A "API Key" curta não serve.
+
+## Como rodar
+
+```bash
+npm install
+```
+
+Copie `.env.example` para `.env.local` e cole o token:
+
+```
+TMDB_READ_TOKEN=eyJhbGciOi...
+```
+
+O `.env.local` nunca vai para o Git. Depois:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Outros comandos
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Comando | O que faz |
+|---|---|
+| `npm test` | Roda os testes automáticos (Vitest) |
+| `npm run lint` | Verifica o estilo do código |
+| `npm run build` | Gera a versão de produção |
 
-## Learn More
+## Como o código está organizado
 
-To learn more about Next.js, take a look at the following resources:
+- `app/`: as páginas (início, detalhes de filme e série, erro, não encontrado).
+- `components/`: as peças visuais (grade, card, filtros, paginação…).
+- `lib/tmdb/`: toda a conversa com o TMDB. Só `lib/tmdb/cliente.ts` conhece o token.
+- `lib/filtros.ts` e `lib/cookies.ts`: os filtros no endereço da página e a memória dos streamings.
+- `tests/`: os testes, espelhando as pastas acima.
+- `docs/superpowers/`: o design (spec) e o plano de implementação.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Créditos
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+<img src="public/tmdb-logo.svg" alt="TMDB" height="14">
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Este produto usa a API do TMDB, mas não é endossado nem certificado pelo TMDB.
+Dados de disponibilidade: JustWatch.
